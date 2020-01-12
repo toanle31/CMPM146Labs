@@ -51,8 +51,21 @@ def navigation_edges(level, cell):
              ((1,1), 1.4142135623730951),
              ... ]
     """
-    pass
+    check_list = [(-1,-1), (0, -1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0)]
+    re_list = [] #return list, this contains required tuples
 
+    for i in range(len(check_list)):
+        coord = tuple(map(sum, zip(cell, check_list[i])))
+        if coord not in level['walls']:
+            if check_list[i][0] == 0 or check_list[i][1] == 0: #if diaganol spaces
+                cost = 0.5 * sqrt(2) * level['spaces'][coord] + 0.5 * sqrt(2) * level['spaces'][cell]
+            else: #if adjacent spaces
+                cost = 0.5 * level['spaces'][coord] + 0.5 * level['spaces'][cell]
+        else:
+            cost = 999
+        re_list.append(tuple((coord, cost)))
+    print(re_list)
+    return re_list
 
 def test_route(filename, src_waypoint, dst_waypoint):
     """ Loads a level, searches for a path between the given waypoints, and displays the result.
@@ -73,7 +86,8 @@ def test_route(filename, src_waypoint, dst_waypoint):
     dst = level['waypoints'][dst_waypoint]
 
     # Search for and display the path from src to dst.
-    path = dijkstras_shortest_path(src, dst, level, navigation_edges)
+    path = dijkstras_shortest_path(src, dst, level, navigation_edges(level, src))
+
     if path:
         show_level(level, path)
     else:
@@ -104,7 +118,7 @@ def cost_to_all_cells(filename, src_waypoint, output_filename):
 
 
 if __name__ == '__main__':
-    filename, src_waypoint, dst_waypoint = 'example.txt', 'a','e'
+    filename, src_waypoint, dst_waypoint = 'example.txt', 'a','b'
 
     # Use this function call to find the route between two waypoints.
     test_route(filename, src_waypoint, dst_waypoint)
