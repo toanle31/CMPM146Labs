@@ -57,7 +57,7 @@ def navigation_edges(level, cell):
     for i in range(len(check_list)):
         coord = tuple(map(sum, zip(cell, check_list[i])))
         if coord not in level['walls']:
-            if check_list[i][0] == 0 or check_list[i][1] == 0: #if diaganol spaces
+            if check_list[i][0] != 0 and check_list[i][1] != 0: #if diaganol spaces
                 cost = 0.5 * sqrt(2) * level['spaces'][coord] + 0.5 * sqrt(2) * level['spaces'][cell]
             else: #if adjacent spaces
                 cost = 0.5 * level['spaces'][coord] + 0.5 * level['spaces'][cell]
