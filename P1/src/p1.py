@@ -53,9 +53,8 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
         while u:
             re_list.insert(0, u)
             u = prev[u]
-        print(re_list)
+        re_list.append(destination)
         return re_list
-        #yayadyaydyady
 
 def dijkstras_shortest_path_to_all(initial_position, graph, adj):
     """ Calculates the minimum cost to every reachable cell in a graph from the initial_position.
@@ -154,7 +153,7 @@ def cost_to_all_cells(filename, src_waypoint, output_filename):
 
 
 if __name__ == '__main__':
-    filename, src_waypoint, dst_waypoint = 'example.txt', 'a','b'
+    filename, src_waypoint, dst_waypoint = 'example.txt', 'a','c'
 
     # Use this function call to find the route between two waypoints.
     test_route(filename, src_waypoint, dst_waypoint)
