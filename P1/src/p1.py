@@ -55,6 +55,7 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
             u = prev[u]
         print(re_list)
         return re_list
+        #yayadyaydyady
 
 def dijkstras_shortest_path_to_all(initial_position, graph, adj):
     """ Calculates the minimum cost to every reachable cell in a graph from the initial_position.
