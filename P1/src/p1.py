@@ -17,8 +17,44 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
         Otherwise, return None.
 
     """
-    pass
+    Q = []
+    dist = {}
+    prev = {}
+    dist[initial_position] = 0
+    prev[initial_position] = None
+    re_list = []
+    #if start == end then just return end as path
+    if initial_position == destination:
+        re_list.append(destination)
+        return re_list
 
+    #push init_pos to Q as starting point
+    heappush(Q, (initial_position, 0))
+    while Q:
+        u = heappop(Q)
+
+        if u[0] == destination:
+            break
+
+        for v in navigation_edges(graph, u[0]):
+            length = u[1] + v[1]
+            alt = dist[u[0]] + length
+            if v[1] != inf: #skip if inf
+                if v[0] not in dist or alt < dist[v[0]]:
+                    dist[v[0]] = alt
+                    prev[v[0]] = u[0]
+                    heappush(Q, v)
+    #print(dist)
+    #if last accessed vertex is not destination return None
+    if u[0] != destination:
+        return None
+    else: #else build the re_list to return
+        u = prev[destination]
+        while u:
+            re_list.insert(0, u)
+            u = prev[u]
+        print(re_list)
+        return re_list
 
 def dijkstras_shortest_path_to_all(initial_position, graph, adj):
     """ Calculates the minimum cost to every reachable cell in a graph from the initial_position.
@@ -62,9 +98,8 @@ def navigation_edges(level, cell):
             else: #if adjacent spaces
                 cost = 0.5 * level['spaces'][coord] + 0.5 * level['spaces'][cell]
         else:
-            cost = 999
+            cost = inf
         re_list.append(tuple((coord, cost)))
-    print(re_list)
     return re_list
 
 def test_route(filename, src_waypoint, dst_waypoint):
