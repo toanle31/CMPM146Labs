@@ -2,7 +2,6 @@ from p1_support import load_level, show_level, save_level_costs
 from math import inf, sqrt
 from heapq import heappop, heappush
 
-
 def dijkstras_shortest_path(initial_position, destination, graph, adj):
     """ Searches for a minimal cost path through a graph using Dijkstra's algorithm.
 
@@ -18,9 +17,9 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
 
     """
     Q = []
-    dist = {}
+    cost = {}
     prev = {}
-    dist[initial_position] = 0
+    cost[initial_position] = 0
     prev[initial_position] = None
     re_list = []
     #if start == end then just return end as path
@@ -32,19 +31,17 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
     heappush(Q, (initial_position, 0))
     while Q:
         u = heappop(Q)
-
         if u[0] == destination:
             break
 
         for v in navigation_edges(graph, u[0]):
-            length = u[1] + v[1]
-            alt = dist[u[0]] + length
             if v[1] != inf: #skip if inf
-                if v[0] not in dist or alt < dist[v[0]]:
-                    dist[v[0]] = alt
+                alt = cost[u[0]] + v[1]
+                if v[0] not in cost or alt < cost[v[0]]:
+                    cost[v[0]] = alt
                     prev[v[0]] = u[0]
                     heappush(Q, v)
-    #print(dist)
+
     #if last accessed vertex is not destination return None
     if u[0] != destination:
         return None
@@ -67,7 +64,26 @@ def dijkstras_shortest_path_to_all(initial_position, graph, adj):
     Returns:
         A dictionary, mapping destination cells to the cost of a path from the initial_position.
     """
-    pass
+    Q = []
+    cost = {}
+    prev = {}
+    cost[initial_position] = 0
+    prev[initial_position] = None
+
+    #push init_pos to Q as starting point
+    heappush(Q, (initial_position, 0))
+    while Q:
+        u = heappop(Q)
+        for v in navigation_edges(graph, u[0]):
+            if v[1] != inf:
+                alt = cost[u[0]] + v[1]
+                if v[0] not in cost or alt < cost[v[0]]:
+                    cost[v[0]] = alt
+                    prev[v[0]] = u[0]
+                    heappush(Q, v)
+            else:
+                cost[v[0]] = inf
+    return cost
 
 
 def navigation_edges(level, cell):
@@ -153,10 +169,10 @@ def cost_to_all_cells(filename, src_waypoint, output_filename):
 
 
 if __name__ == '__main__':
-    filename, src_waypoint, dst_waypoint = 'example.txt', 'a','c'
+    filename, src_waypoint, dst_waypoint = 'my_maze.txt', 'a','b'
 
     # Use this function call to find the route between two waypoints.
     test_route(filename, src_waypoint, dst_waypoint)
 
     # Use this function to calculate the cost to all reachable cells from an origin point.
-    cost_to_all_cells(filename, src_waypoint, 'my_costs.csv')
+    cost_to_all_cells(filename, src_waypoint, 'my_maze_costs.csv')
