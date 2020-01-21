@@ -23,7 +23,7 @@ def find_path (source_point, destination_point, mesh):
     #path, boxes = a_star(mesh, source_point, destination_point)
     path, boxes = a_star(mesh, source_point, destination_point)
 
-    BFS(mesh, source_point, destination_point)
+    #BFS(mesh, source_point, destination_point) #BFS call for debug
 
     if path and boxes:
         return path, boxes
@@ -62,7 +62,7 @@ def BFS(mesh, source_point, destination_point):
     if src_box and dest_box:
         pass
     else:
-        print('No Path Found')
+        print('No Path Found With BFS')
         return False, False
 
     Q.append(src_box)
@@ -78,7 +78,7 @@ def BFS(mesh, source_point, destination_point):
                 Q.append(adj_box)
                 visited.append(adj_box)
     if not found:
-        print("No Path Found!")
+        print("No Path Found With BFS!")
     else:
 
         print("Found path with BFS")

@@ -12,8 +12,11 @@ def build_mesh(image, min_feature_size):
     def scan(box):
 
         x1, x2, y1, y2 = box
+        x1 = int(x1)
+        x2 = int(x2)
+        y1 = int(y1)
+        y2 = int(y2)
         area = (x2 - x1) * (y2 - y1)
-
         if area < min_feature_size or (image[x1:x2, y1:y2] == 255).all() or (image[x1:x2, y1:y2] == 0).all():
 
             # this box is simple enough to handle in one node
@@ -153,6 +156,10 @@ if __name__ == '__main__':
 
     atlas = zeros_like(img)
     for x1, x2, y1, y2 in mesh['boxes']:
+        x1 = int(x1)
+        x2 = int(x2)
+        y1 = int(y1)
+        y2 = int(y2)
         atlas[x1:x2, y1:y2] = random.randint(64, 255)
 
     imsave(filename + '.mesh.png', atlas)
