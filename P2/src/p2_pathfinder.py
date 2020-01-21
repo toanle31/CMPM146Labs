@@ -1,4 +1,5 @@
-from math import inf, sqrt
+
+from math import inf, sqrt
 from heapq import heappop, heappush
 def find_path (source_point, destination_point, mesh):
 
@@ -23,7 +24,13 @@ def find_path (source_point, destination_point, mesh):
     path, boxes = a_star(mesh, source_point, destination_point)
 
     BFS(mesh, source_point, destination_point)
-    return path, boxes
+
+    if path and boxes:
+        return path, boxes
+    else:
+        path = []
+        boxes = []
+        return path, boxes
 
 #check if point is inside box
 def point_check(box, point):
@@ -40,6 +47,7 @@ def search_for_box(mesh, point):
     for box in mesh['boxes']:
         if point_check(box, point):
             return box
+    return False
 
 #kept this function to test to make sure if path is possible
 def BFS(mesh, source_point, destination_point):
@@ -49,6 +57,14 @@ def BFS(mesh, source_point, destination_point):
 
     src_box = search_for_box(mesh, source_point)
     dest_box = search_for_box(mesh, destination_point)
+
+    # Makes sure both points are valid.
+    if src_box and dest_box:
+        pass
+    else:
+        print('No Path Found')
+        return False, False
+
     Q.append(src_box)
     visited.append(src_box)
     while Q:
@@ -89,13 +105,22 @@ def a_star(mesh, source_point, destination_point):
     src_box = search_for_box(mesh, source_point)
     dest_box = search_for_box(mesh, destination_point)
 
+    # Makes sure both points are valid.
+    if src_box and dest_box:
+        pass
+    else:
+        print('No Path Found')
+        return False, False
+
     detail_points[src_box] = source_point
     prev_from_source[src_box] = None
     forward_dist[src_box] = 0
+    source_dist_so_far = 0
 
     detail_points[dest_box] = destination_point
     prev_from_destination[dest_box] = None
     backward_dist[dest_box] = 0
+    destination_dist_so_far = 0
 
     #Taking care of cases where source_point and destination_point are the same
     # and if they are in the same box
@@ -197,39 +222,52 @@ def a_star(mesh, source_point, destination_point):
             return path, boxes
 
         else:
+            #calculate distance to current_node
+            if current_goal is 'destination' and prev_from_source[current_box] != None:
+                source_dist_so_far += get_euclidean_dist(detail_points[current_box], detail_points[prev_from_source[current_box]])
+
+            if current_goal is 'source' and prev_from_destination[current_box] != None:
+                destination_dist_so_far += get_euclidean_dist(detail_points[current_box], detail_points[prev_from_destination[current_box]])
+
             for adj_box in mesh["adj"][current_box]:
                 #[max(b1x1, b2x1), min(b1x2, b2x2), max(b1y1, b2y1), min(b1y2), b2y2]
                 #border = (x1, x2, y1, y2) of border edge
                 border = [max(current_box[0], adj_box[0]), min(current_box[1], adj_box[1]), max(current_box[2], adj_box[2]), min(current_box[3], adj_box[3])]
                 mid_point = ((border[0] + border[1]) / 2, (border[2] + border[3]) / 2)
+
                 dist_left = get_euclidean_dist(detail_points[current_box], (border[0], border[2]))
                 dist_right = get_euclidean_dist(detail_points[current_box], (border[1], border[3]))
                 dist_mid = get_euclidean_dist(detail_points[current_box], mid_point)
 
-                if (min(dist_left, dist_right, dist_mid) == dist_left):
-                    detail_points[adj_box] = (border[0], border[2])
-                elif(min(dist_left, dist_right, dist_mid) == dist_right):
-                    detail_points[adj_box] = (border[1], border[3])
+                if min(dist_left, dist_right, dist_mid) == dist_left:
+                    adj_box_point = (border[0], border[2])
+                elif min(dist_left, dist_right, dist_mid) == dist_right:
+                    adj_box_point = (border[1], border[3])
                 else:
-                    detail_points[adj_box] = mid_point
+                    adj_box_point = mid_point
+
+                edge_distance = get_euclidean_dist(adj_box_point, detail_points[current_box])
+                dist_remaining = get_euclidean_dist(adj_box_point, destination_point)
 
                 #add distance traveled so far with remaining distance
                 #dist_so_far going forward + edge_distance + remaining distance to destination
                 if current_goal is 'destination':
-                    distance = forward_dist[current_box] + get_euclidean_dist(detail_points[adj_box], detail_points[current_box]) + get_euclidean_dist(detail_points[adj_box], destination_point)
+                    distance = source_dist_so_far + edge_distance + dist_remaining
 
                     if adj_box not in forward_dist or distance < forward_dist[adj_box]:
                         forward_dist[adj_box] = distance
                         prev_from_source[adj_box] = current_box
+                        detail_points[adj_box] = adj_box_point
                         heappush(Q, (distance, adj_box, 'destination'))
                 else:
                     #add distance traveled so far with remaining distance
                     #dist_so_far going backward + edge_distance + remaining distance to source
-                    distance = backward_dist[current_box] + get_euclidean_dist(detail_points[adj_box], detail_points[current_box]) + get_euclidean_dist(detail_points[adj_box], source_point)
-
+                    distance = destination_dist_so_far + edge_distance + dist_remaining
                     if adj_box not in backward_dist or distance < backward_dist[adj_box]:
                         backward_dist[adj_box] = distance
                         prev_from_destination[adj_box] = current_box
+                        detail_points[adj_box] = adj_box_point
                         heappush(Q, (distance, adj_box, 'source'))
 
+    print("No Path found by A*")
     return None, None
